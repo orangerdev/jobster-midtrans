@@ -71,14 +71,14 @@
             </tr>
 
             <tr>
-                <td valign=top width="22"><?php wpjobster_theme_bullet( __( 'Your Midtrans Secret key', 'jobmid' ) ); ?></td>
-                <td ><?php _e('Midtrans Secret key:','jobmid'); ?></td>
-                <td><input type="text" size="45" name="wpjobster_midtrans_secret_key" value="<?php echo apply_filters( 'wpj_sensitive_info_credentials', get_option('wpjobster_midtrans_secret_key') ); ?>"/></td>
+                <td valign=top width="22"><?php wpjobster_theme_bullet( __( 'Your Midtrans Server key', 'jobmid' ) ); ?></td>
+                <td ><?php _e('Midtrans Server key:','jobmid'); ?></td>
+                <td><input type="text" size="45" name="wpjobster_midtrans_server_key" value="<?php echo apply_filters( 'wpj_sensitive_info_credentials', get_option('wpjobster_midtrans_server_key') ); ?>"/></td>
             </tr>
 
             <tr>
                 <td>
-                    
+
                 </td>
                 <td></td>
                 <td><input type="submit" name="wpjobster_save_<?php echo $this->unique_slug; ?>" value="<?php _e( 'Save Options', 'jobmid' ); ?>" /></td>
