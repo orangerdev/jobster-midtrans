@@ -21,7 +21,7 @@ namespace Jobmid;
  * @subpackage Jobmid/public
  * @author     Ridwan Arifandi <orangerdigiart@gmail.com>
  */
-class Public {
+class Front {
 
 	/**
 	 * The ID of this plugin.
