@@ -58,6 +58,18 @@ class Jobmid {
 	protected $version;
 
 	/**
+	 * Unique slug
+	 * @var string
+	 */
+	protected $unique_slug = 'midtrans';
+
+	/**
+	 * Calling priority value
+	 * @var integer
+	 */
+	protected $priority = 1111;
+
+	/**
 	 * Define the core functionality of the plugin.
 	 *
 	 * Set the plugin name and the plugin version that can be used throughout the plugin.
@@ -115,6 +127,7 @@ class Jobmid {
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-jobmid-admin.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-jobmid-payment-gateway.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
@@ -157,6 +170,13 @@ class Jobmid {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
+		$payment = new Jobmid\Admin\PaymentGateway( $this->get_plugin_name(), $this->get_version() );
+
+		$this->loader->add_action('plugins_loaded'		,$payment,'init_gateways');
+
+		//$this->loader->add_filter('wpjobster_payment_gateways'			,[$this,'register_payment_gateway']	,1);
+		//$this->loader->add_action('wpjobster_show_paymentgateway_forms'	,[$this,'display_form'],			 $this->priority,3);
+
 	}
 
 	/**
@@ -168,7 +188,7 @@ class Jobmid {
 	 */
 	private function define_public_hooks() {
 
-		$plugin_public = new Jobmid\Public( $this->get_plugin_name(), $this->get_version() );
+		$plugin_public = new Jobmid\Front( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
