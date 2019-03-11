@@ -61,24 +61,24 @@
             <tr>
                 <td valign=top width="22"><?php wpjobster_theme_bullet( __( 'Your Midtrans Merchant ID', 'jobmid' ) ); ?></td>
                 <td ><?php _e('Midtrans Merchant ID:','jobmid'); ?></td>
-                <td><input type="text" size="45" name="jobmid_merchant_id" value="<?php echo apply_filters( 'wpj_sensitive_info_credentials', get_option('jobmid_merchant_id') ); ?>"/></td>
+                <td><input type="text" size="45" name="wpjobster_midtrans_merchant_id" value="<?php echo apply_filters( 'wpj_sensitive_info_credentials', get_option('wpjobster_midtrans_merchant_id') ); ?>"/></td>
             </tr>
 
             <tr>
                 <td valign=top width="22"><?php wpjobster_theme_bullet( __( 'Your Midtrans Client key', 'jobmid' ) ); ?></td>
                 <td ><?php _e('Midtrans Client key:','jobmid'); ?></td>
-                <td><input type="text" size="45" name="jobmid_client_key" value="<?php echo apply_filters( 'wpj_sensitive_info_credentials', get_option('jobmid_client_key') ); ?>"/></td>
+                <td><input type="text" size="45" name="wpjobster_midtrans_client_key" value="<?php echo apply_filters( 'wpj_sensitive_info_credentials', get_option('wpjobster_midtrans_client_key') ); ?>"/></td>
             </tr>
 
             <tr>
                 <td valign=top width="22"><?php wpjobster_theme_bullet( __( 'Your Midtrans Secret key', 'jobmid' ) ); ?></td>
                 <td ><?php _e('Midtrans Secret key:','jobmid'); ?></td>
-                <td><input type="text" size="45" name="jobmid_secret_key" value="<?php echo apply_filters( 'wpj_sensitive_info_credentials', get_option('jobmid_secret_key') ); ?>"/></td>
+                <td><input type="text" size="45" name="wpjobster_midtrans_secret_key" value="<?php echo apply_filters( 'wpj_sensitive_info_credentials', get_option('wpjobster_midtrans_secret_key') ); ?>"/></td>
             </tr>
 
             <tr>
                 <td>
-                    <input type="hidden" name="wpjobster_stripe_developed_in_theme" value="no" />
+                    
                 </td>
                 <td></td>
                 <td><input type="submit" name="wpjobster_save_<?php echo $this->unique_slug; ?>" value="<?php _e( 'Save Options', 'jobmid' ); ?>" /></td>
