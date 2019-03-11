@@ -1,11 +1,19 @@
 <?php
 namespace Jobmid\Admin;
 
+use \Veritrans_Config;
+use \Veritrans_Snap;
+
 class PaymentGateway
 {
-    public $priority    = 1111;
-    public $unique_slug = 'midtrans';
-    protected $notice   = false;
+    public $priority         = 1111;
+    public $unique_slug      = 'midtrans';
+    protected $notice        = false;
+    protected $is_production = false;
+    protected $merchant_id   = false;
+    protected $server_key    = false;
+    protected $client_key    = false;
+
     /**
 	 * The ID of this plugin.
 	 *
@@ -34,12 +42,33 @@ class PaymentGateway
 	public function __construct( $plugin_name, $version ) {
 
 		$this->plugin_name = $plugin_name;
-		$this->version = $version;
+		$this->version     = $version;
 
 	}
 
+    /**
+     * Set veritrans config before make calling
+     */
+    protected function set_veritrans_config()
+    {
+        Veritrans_Config::$isProduction = $this->is_production;
+        Veritrans_Config::$serverKey    = $this->server_key;
+    }
+
+    /**
+     * Gateway initialization
+     * Hooked via action plugins_loaded, priority 1
+     * @return void
+     */
     public function init_gateways()
     {
+        $sandbox  = get_option('wpjobster_midtrans_enable_sandbox');
+
+        $this->is_production = ('yes' === $sandbox) ? false : true;
+        $this->server_key    = get_option('wpjobster_midtrans_server_key');
+        $this->client_key    = get_option('wpjobster_midtrans_client_key');
+        $this->merchant_id   = get_option('wpjobster_midtrans_merchant_id');
+
         add_filter( 'wpjobster_payment_gateways', [$this, 'register_payment_gateway' ]);
     }
 
@@ -88,7 +117,7 @@ class PaymentGateway
             update_option('wpjobster_midtrans_button_caption', $_POST['wpjobster_midtrans_button_caption']);
             update_option('wpjobster_midtrans_merchant_id',    $_POST['wpjobster_midtrans_merchant_id']);
             update_option('wpjobster_midtrans_client_key',     $_POST['wpjobster_midtrans_client_key']);
-            update_option('wpjobster_midtrans_secret_key',     $_POST['wpjobster_midtrans_secret_key']);
+            update_option('wpjobster_midtrans_server_key',     $_POST['wpjobster_midtrans_server_key']);
 
             $this->notice = true;
         endif;
@@ -123,13 +152,50 @@ class PaymentGateway
     /**
      * Process the transaction from checkout to payment gateway
      * Hooked via action wpjobster_taketo_midtrans_gateway, priority 999
-     * @param  [type] $payment_type [description]
-     * @param  [type] $details      [description]
+     * @param  string $payment_type [description]
+     * @param  array $details      [description]
      * @return void
      */
-    public function process_transaction($payment_type,$details)
+    public function process_transaction(string $payment_type,array $detail)
     {
-        __debug(func_get_args());
+        $this->set_veritrans_config();
+
+        $transaction = [
+            'transaction_details'   => [
+                'order_id'      => $detail['order_id'],
+                'gross_amount'  => $detail['wpjobster_final_payable_amount']
+            ],
+            'customer_details'      => [
+                'first_name' => $detail['current_user']->user_firstname,
+                'last_name'  => $detail['current_user']->user_lastname,
+                'email'      => $detail['current_user']->user_email
+            ],
+            'item_details'          => [
+                [
+                    'id'        => $detail['post']->ID,
+                    'price'     => $detail['wpjobster_final_payable_amount'],
+                    'quantity'  => 1,
+                    'name'      => $detail['post']->post_title
+                ]
+            ]
+        ];
+
+        try {
+            wp_redirect(\Veritrans_VtWeb::getRedirectionUrl($transaction));
+            exit;
+        }
+        catch (Exception $e) {
+            echo ',,'.$e->getMessage();
+            if(strpos ($e->getMessage(), "Access denied due to unauthorized")) :
+                echo "<code>";
+                echo "<h4>Please set real server key from sandbox</h4>";
+                echo "In file: " . __FILE__;
+                echo "<br>";
+                echo "<br>";
+                echo htmlspecialchars('Veritrans_Config::$serverKey = \'<your server key>\';');
+                die();
+            endif;
+        }
         exit;
     }
 }
