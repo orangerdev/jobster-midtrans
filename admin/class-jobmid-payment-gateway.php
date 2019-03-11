@@ -5,6 +5,7 @@ class PaymentGateway
 {
     public $priority    = 1111;
     public $unique_slug = 'midtrans';
+    protected $notice   = false;
     /**
 	 * The ID of this plugin.
 	 *
@@ -72,5 +73,40 @@ class PaymentGateway
     {
 		$tab_id = get_tab_id( $wpjobster_payment_gateways );
         require plugin_dir_path(__FILE__).'/partials/form.php';
+    }
+
+    /**
+     * Update setting data
+     * Hooked via action admin_init, priority 999
+     * @return void
+     */
+    public function update_setting()
+    {
+        if(isset($_POST['wpjobster_save_'.$this->unique_slug])) :
+            update_option('wpjobster_midtrans_enable',         $_POST['wpjobster_midtrans_enable']);
+            update_option('wpjobster_midtrans_enable_sandbox', $_POST['wpjobster_midtrans_enable_sandbox']);
+            update_option('wpjobster_midtrans_button_caption', $_POST['wpjobster_midtrans_button_caption']);
+            update_option('wpjobster_midtrans_merchant_id',    $_POST['wpjobster_midtrans_merchant_id']);
+            update_option('wpjobster_midtrans_client_key',     $_POST['wpjobster_midtrans_client_key']);
+            update_option('wpjobster_midtrans_secret_key',     $_POST['wpjobster_midtrans_secret_key']);
+
+            $this->notice = true;
+        endif;
+    }
+
+    /**
+     * Update message
+     * Hooked via action admin_notices, priority 999
+     * @return void
+     */
+    public function update_notice()
+    {
+        if(true === $this->notice) :
+            ?>
+            <div class="notice notice-success is-dismissible">
+                <p><?php _e( 'Midtrans setting updated', 'jobmid' ); ?></p>
+            </div>
+            <?php
+        endif;
     }
 }
