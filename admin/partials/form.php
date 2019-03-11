@@ -25,12 +25,16 @@
                         <code><?php echo get_bloginfo( 'url' ) . '/?payment_response=midtrans&action=notification'; ?></code>
                     </p>
                     <p>
-                        <strong><?php _e( 'Unfinish Redirect URL', 'jobmid' ); ?></strong><br>
+                        <strong><?php _e( 'Finish Redirect URL', 'jobmid' ); ?></strong><br>
                         <code><?php echo get_bloginfo( 'url' ) . '/?payment_response=midtrans&action=finish'; ?></code>
                     </p>
                     <p>
+                        <strong><?php _e( 'Unfinish Redirect URL', 'jobmid' ); ?></strong><br>
+                        <code><?php echo get_bloginfo( 'url' ) . '/?payment_response=midtrans&action=unfinish'; ?></code>
+                    </p>
+                    <p>
                         <strong><?php _e( 'Error Redirect URL', 'jobmid' ); ?></strong><br>
-                        <code><?php echo get_bloginfo( 'url' ) . '/?payment_response=midtrans&action=finish'; ?></code>
+                        <code><?php echo get_bloginfo( 'url' ) . '/?payment_response=midtrans&action=error'; ?></code>
                     </p>
                 </td>
             </tr>
@@ -42,9 +46,9 @@
             </tr>
 
             <tr>
-                <td valign=top width="22"><?php wpjobster_theme_bullet( __( 'Enable/Disable Midtrans test mode.', 'jobmid' ) ); ?></td>
-                <td width="200"><?php _e( 'Enable Test Mode:', 'jobmid' ); ?></td>
-                <td><?php echo wpjobster_get_option_drop_down( $arr, 'wpjobster_stripe_enablesandbox', 'yes' ); ?></td>
+                <td valign=top width="22"><?php wpjobster_theme_bullet( __( 'Enable/Disable Midtrans sandbox mode.', 'jobmid' ) ); ?></td>
+                <td width="200"><?php _e( 'Enable Sandbox Mode:', 'jobmid' ); ?></td>
+                <td><?php echo wpjobster_get_option_drop_down( $arr, 'wpjobster_midtrans_enable_sandbox', 'yes' ); ?></td>
             </tr>
 
             <tr>
