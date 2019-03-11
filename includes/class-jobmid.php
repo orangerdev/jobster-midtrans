@@ -172,9 +172,12 @@ class Jobmid {
 
 		$payment = new Jobmid\Admin\PaymentGateway( $this->get_plugin_name(), $this->get_version() );
 
-		$this->loader->add_action('plugins_loaded'			,$payment,'init_gateways'	,999);
-		$this->loader->add_action('admin_init'				,$payment,'update_setting'	,999);
-		$this->loader->add_action('admin_notices'			,$payment,'update_notice'	,999);
+		$this->loader->add_action('plugins_loaded',		$payment,'init_gateways'	,999);
+		$this->loader->add_action('admin_init',			$payment,'update_setting'	,999);
+		$this->loader->add_action('admin_notices',		$payment,'update_notice'	,999);
+
+		$this->loader->add_action('wpjobster_taketo_' . $this->unique_slug . '_gateway',	$payment,'process_transaction',999,2);
+		$this->loader->add_filter('wpjobster_take_allowed_currency_' . $this->unique_slug,	$payment,'set_allowed_currency',9999);
 
 		//$this->loader->add_filter('wpjobster_payment_gateways'			,[$this,'register_payment_gateway']	,1);
 		//$this->loader->add_action('wpjobster_show_paymentgateway_forms'	,[$this,'display_form'],			 $this->priority,3);
