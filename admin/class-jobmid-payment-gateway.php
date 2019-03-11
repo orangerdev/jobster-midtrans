@@ -109,4 +109,27 @@ class PaymentGateway
             <?php
         endif;
     }
+
+    /**
+     * Set allowed currency for midtrans payment gateway
+     * @param   string $currency
+     * @return  string
+     */
+    public function set_allowed_currency($currency)
+    {
+        return 'IDR';
+    }
+
+    /**
+     * Process the transaction from checkout to payment gateway
+     * Hooked via action wpjobster_taketo_midtrans_gateway, priority 999
+     * @param  [type] $payment_type [description]
+     * @param  [type] $details      [description]
+     * @return void
+     */
+    public function process_transaction($payment_type,$details)
+    {
+        __debug(func_get_args());
+        exit;
+    }
 }
