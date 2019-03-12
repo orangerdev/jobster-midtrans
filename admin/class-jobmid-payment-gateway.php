@@ -113,15 +113,19 @@ class PaymentGateway
     public function update_setting()
     {
         if(isset($_POST['wpjobster_save_'.$this->unique_slug])) :
-            update_option('wpjobster_midtrans_enable',         $_POST['wpjobster_midtrans_enable']);
-            update_option('wpjobster_midtrans_enable_sandbox', $_POST['wpjobster_midtrans_enable_sandbox']);
-            update_option('wpjobster_midtrans_button_caption', $_POST['wpjobster_midtrans_button_caption']);
-            update_option('wpjobster_midtrans_merchant_id',    $_POST['wpjobster_midtrans_merchant_id']);
-            update_option('wpjobster_midtrans_client_key',     $_POST['wpjobster_midtrans_client_key']);
-            update_option('wpjobster_midtrans_server_key',     $_POST['wpjobster_midtrans_server_key']);
-            update_option('wpjobster_midtrans_finish_message',  $_POST['wpjobster_midtrans_finish_message']);
-            update_option('wpjobster_midtrans_unfinish_message',$_POST['wpjobster_midtrans_unfinish_message']);
-            update_option('wpjobster_midtrans_error_message',   $_POST['wpjobster_midtrans_error_message']);
+            update_option('wpjobster_midtrans_enable',              $_POST['wpjobster_midtrans_enable']);
+            update_option('wpjobster_midtrans_enable_topup',        $_POST['wpjobster_midtrans_enable_topup']);
+            update_option('wpjobster_midtrans_enable_featured',     $_POST['wpjobster_midtrans_enable_featured']);
+            update_option('wpjobster_midtrans_enable_custom_extra', $_POST['wpjobster_midtrans_enable_custom_extra']);
+            update_option('wpjobster_midtrans_enable_tips',         $_POST['wpjobster_midtrans_enable_tips']);
+            update_option('wpjobster_midtrans_enable_sandbox',      $_POST['wpjobster_midtrans_enable_sandbox']);
+            update_option('wpjobster_midtrans_button_caption',      $_POST['wpjobster_midtrans_button_caption']);
+            update_option('wpjobster_midtrans_merchant_id',         $_POST['wpjobster_midtrans_merchant_id']);
+            update_option('wpjobster_midtrans_client_key',          $_POST['wpjobster_midtrans_client_key']);
+            update_option('wpjobster_midtrans_server_key',          $_POST['wpjobster_midtrans_server_key']);
+            update_option('wpjobster_midtrans_finish_message',      $_POST['wpjobster_midtrans_finish_message']);
+            update_option('wpjobster_midtrans_unfinish_message',    $_POST['wpjobster_midtrans_unfinish_message']);
+            update_option('wpjobster_midtrans_error_message',       $_POST['wpjobster_midtrans_error_message']);
 
             $this->notice = true;
         endif;
