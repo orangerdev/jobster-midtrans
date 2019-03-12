@@ -310,22 +310,40 @@ class PaymentGateway
                 $this->verify_transaction($payment_type);
             elseif(isset($_GET['order_id'])) :
 
-                $payment_type  = $this->get_payment_type(intval($_GET['order_id']));
+                $payment_type   = $this->get_payment_type(intval($_GET['order_id']));
+                $payment_status = $_GET['action'];
+                $order_details  = wpjobster_get_order_details_by_orderid(intval($_GET['order_id']));
 
                 if('finish' === $_GET['action']) :
-                    __debug(wpjobster_get_order($_GET['order_id']),wpjobster_get_order_details_by_orderid($_GET['order_id']));
-                    exit;
+
+                    $title   = __('Transaction Success','jobmid');
+                    $message = get_option('wpjobster_midtrans_finish_message');
+
                 elseif(in_array($_GET['action'],['unfinish','error'])) :
-                    $payment_details = "Failed action returned"; // any info you may find useful for debug
+
+                    if('unfinish' === $_GET['action']) :
+                        $title   = __('Transaction Unfinish','jobmid');
+                        $message = get_option('wpjobster_midtrans_unfinish_message');
+                    else :
+                        $title   = __('Transaction Error','jobmid');
+                        $message = get_option('wpjobster_midtrans_error_message');
+                    endif;
+
+                    $payment_details = "Failed action returned";
+
                     do_action( "wpjobster_" . $payment_type . "_payment_failed",
                         $order_id,
                         $this->unique_slug,
                         $payment_details,
                         maybe_unserialize($_REQUEST)
                     );
-                    die();
+
                 endif;
             endif;
+
+            require plugin_dir_path(dirname(__FILE__)).'public/partials/message.php';
+
+            exit;
         endif;
 
     }
