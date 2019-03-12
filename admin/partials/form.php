@@ -46,6 +46,30 @@
             </tr>
 
             <tr>
+                <td valign=top width="22"><?php wpjobster_theme_bullet( __( 'Enable/Disable Top Up', 'jobmid') ); ?></td>
+                <td width="200"><?php _e( 'Enable Top Up:', 'jobmid' ); ?></td>
+                <td><?php echo wpjobster_get_option_drop_down( $arr, 'wpjobster_midtrans_enable_topup', 'no' ); ?></td>
+            </tr>
+
+            <tr>
+                <td valign=top width="22"><?php wpjobster_theme_bullet( __( 'Enable/Disable Featured', 'jobmid') ); ?></td>
+                <td width="200"><?php _e( 'Enable Featured:', 'jobmid' ); ?></td>
+                <td><?php echo wpjobster_get_option_drop_down( $arr, 'wpjobster_midtrans_enable_featured', 'no' ); ?></td>
+            </tr>
+
+            <tr>
+                <td valign=top width="22"><?php wpjobster_theme_bullet( __( 'Enable/Disable Custom Extra', 'jobmid') ); ?></td>
+                <td width="200"><?php _e( 'Enable Custom Extra:', 'jobmid' ); ?></td>
+                <td><?php echo wpjobster_get_option_drop_down( $arr, 'wpjobster_midtrans_enable_custom_extra', 'no' ); ?></td>
+            </tr>
+
+            <tr>
+                <td valign=top width="22"><?php wpjobster_theme_bullet( __( 'Enable/Disable Tips', 'jobmid') ); ?></td>
+                <td width="200"><?php _e( 'Enable Tips:', 'jobmid' ); ?></td>
+                <td><?php echo wpjobster_get_option_drop_down( $arr, 'wpjobster_midtrans_enable_tips', 'no' ); ?></td>
+            </tr>
+
+            <tr>
                 <td valign=top width="22"><?php wpjobster_theme_bullet( __( 'Enable/Disable Midtrans sandbox mode.', 'jobmid' ) ); ?></td>
                 <td width="200"><?php _e( 'Enable Sandbox Mode:', 'jobmid' ); ?></td>
                 <td><?php echo wpjobster_get_option_drop_down( $arr, 'wpjobster_midtrans_enable_sandbox', 'yes' ); ?></td>
