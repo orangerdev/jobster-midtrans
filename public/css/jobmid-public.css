@@ -1,0 +1,39 @@
+body {
+    background-color: #F7F8F9;
+}
+
+.jobmid-message-holder {
+    width: 100%;
+    max-width: 640px;
+    margin-top: 20vh;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 20px;
+    background: white;
+    border:1px solid #e8e9ea;
+}
+
+.jobmid-message-holder .jobmid-message-content {
+    text-align: center
+}
+
+.jobmid-message-holder .jobmid-message-content p {
+    font-size: 18px;
+}
+
+.jobmid-message-holder .jobmid-message-content #jobmid-countdown {
+    font-weight: bold;
+}
+
+.jobmid-message-holder .jobmid-message-content .jobmid-button {
+    text-align: center;
+    display: none;
+}
+
+.jobmid-message-holder .jobmid-message-content .jobmid-button a {
+    padding: 8px 20px;
+    display: inline-block;
+    background-color: #2C5767;
+    color: white;
+    text-transform: uppercase;
+}
