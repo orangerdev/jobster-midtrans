@@ -119,6 +119,9 @@ class PaymentGateway
             update_option('wpjobster_midtrans_merchant_id',    $_POST['wpjobster_midtrans_merchant_id']);
             update_option('wpjobster_midtrans_client_key',     $_POST['wpjobster_midtrans_client_key']);
             update_option('wpjobster_midtrans_server_key',     $_POST['wpjobster_midtrans_server_key']);
+            update_option('wpjobster_midtrans_finish_message',  $_POST['wpjobster_midtrans_finish_message']);
+            update_option('wpjobster_midtrans_unfinish_message',$_POST['wpjobster_midtrans_unfinish_message']);
+            update_option('wpjobster_midtrans_error_message',   $_POST['wpjobster_midtrans_error_message']);
 
             $this->notice = true;
         endif;
