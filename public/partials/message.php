@@ -5,6 +5,9 @@
         <title><?php echo $title; ?></title>
         <?php wp_head(); ?>
         <link rel="stylesheet" href="<?php echo plugin_dir_url(dirname(__FILE__)).'css/jobmid-public.css' ; ?>" />
+        <script type="text/javascript">
+        var jobMidRedirect = '<?php echo home_url('/my-account/shopping'); ?>';
+        </script>
     </head>
     <body>
         <div class="jobmid-message-holder">

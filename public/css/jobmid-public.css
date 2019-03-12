@@ -27,6 +27,7 @@ body {
 
 .jobmid-message-holder .jobmid-message-content .jobmid-button {
     text-align: center;
+    display: none;
 }
 
 .jobmid-message-holder .jobmid-message-content .jobmid-button a {
