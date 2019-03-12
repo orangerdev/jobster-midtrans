@@ -3,8 +3,8 @@
     <head>
         <meta charset="utf-8">
         <title><?php echo $title; ?></title>
-        <link rel="stylesheet" href="<?php echo plugin_dir_url(__FILE__).'public/css/jobmid-public.css' ; ?>">
         <?php wp_head(); ?>
+        <link rel="stylesheet" href="<?php echo plugin_dir_url(dirname(__FILE__)).'css/jobmid-public.css' ; ?>" />
     </head>
     <body>
         <div class="jobmid-message-holder">
@@ -14,13 +14,13 @@
                     Anda akan dialihkan ke halaman transaksi dalam waktu <span id='jobmid-countdown'>5</span> detik
                 </p>
                 <div class="jobmid-button">
-                    <a href="<?php home_url('/my-account/shopping'); ?>">
+                    <a href="<?php echo home_url('/my-account/shopping'); ?>">
                         Klik tombol ini jika anda tidak dialihkan otomatis
                     </a>
                 </div>
             </div>
         </div>
-        <script type="text/javascript" src='<?php echo plugin_dir_url(__FILE__).'public/js/jobmid-public.js' ; ?>'></script>
+        <script type="text/javascript" src='<?php echo plugin_dir_url(dirname(__FILE__)).'js/jobmid-public.js' ; ?>'></script>
         <?php wp_footer(); ?>
     </body>
 </html>
