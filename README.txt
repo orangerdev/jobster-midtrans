@@ -20,6 +20,8 @@ The plugin will add midtrans payment gateway into WPJobster theme (https://wpjob
 4. There is Midtrans tabs, click on the tab
 5. Fill every fields
 
+![screencapture-idlancer-wp-admin-admin-php-2019-03-](https://user-images.githubusercontent.com/8991969/54210797-c0547880-4512-11e9-9633-b2cfe3338894.png)
+
 == Changelog ==
 
 = 1.0.0 =
