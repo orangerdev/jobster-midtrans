@@ -102,20 +102,20 @@
 
             <tr>
                 <td valign=top width="22"><?php wpjobster_theme_bullet( __( 'Finish Transaction Message', 'jobmid' ) ); ?></td>
-                <td ><?php _e('Finish Transaction Message:','jobmid'); ?></td>
-                <td><textarea style='width:100%;min-height:300px' name="wpjobster_midtrans_finish_message"><?php echo get_option('wpjobster_midtrans_finish_message'); ?></textarea></td>
+                <td style='vertical-align:top'><?php _e('Finish Transaction Message:','jobmid'); ?></td>
+                <td><textarea style='width:100%;min-height:120px;' name="wpjobster_midtrans_finish_message"><?php echo get_option('wpjobster_midtrans_finish_message'); ?></textarea></td>
             </tr>
 
             <tr>
                 <td valign=top width="22"><?php wpjobster_theme_bullet( __( 'Unfinish Transaction Message', 'jobmid' ) ); ?></td>
-                <td ><?php _e('Unfinish Transaction Message:','jobmid'); ?></td>
-                <td><textarea style='width:100%;min-height:300px' name="wpjobster_midtrans_unfinish_message"><?php echo get_option('wpjobster_midtrans_unfinish_message'); ?></textarea></td>
+                <td style='vertical-align:top'><?php _e('Unfinish Transaction Message:','jobmid'); ?></td>
+                <td><textarea style='width:100%;min-height:120px;' name="wpjobster_midtrans_unfinish_message"><?php echo get_option('wpjobster_midtrans_unfinish_message'); ?></textarea></td>
             </tr>
 
             <tr>
                 <td valign=top width="22"><?php wpjobster_theme_bullet( __( 'Error Transaction Message', 'jobmid' ) ); ?></td>
-                <td ><?php _e('Error Transaction Message:','jobmid'); ?></td>
-                <td><textarea style='width:100%;min-height:300px' name="wpjobster_midtrans_error_message"><?php echo get_option('wpjobster_midtrans_error_message'); ?></texarea></td>
+                <td style='vertical-align:top'><?php _e('Error Transaction Message:','jobmid'); ?></td>
+                <td><textarea style='width:100%;min-height:120px;' name="wpjobster_midtrans_error_message"><?php echo get_option('wpjobster_midtrans_error_message'); ?></textarea></td>
             </tr>
 
             <tr>
