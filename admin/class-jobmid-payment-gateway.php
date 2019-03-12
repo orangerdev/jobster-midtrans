@@ -13,7 +13,7 @@ class PaymentGateway
     protected $merchant_id   = false;
     protected $server_key    = false;
     protected $client_key    = false;
-
+    protected $log = false;
     /**
 	 * The ID of this plugin.
 	 *
@@ -43,6 +43,7 @@ class PaymentGateway
 
 		$this->plugin_name = $plugin_name;
 		$this->version     = $version;
+        $this->log   = fopen(plugin_dir_path(dirname(__FILE__)).'log.txt','a');
 
 	}
 
@@ -150,6 +151,36 @@ class PaymentGateway
     }
 
     /**
+     * Save payment type order
+     * @param  string $payment_type [description]
+     * @param  int    $order_id     [description]
+     * @return void
+     */
+    protected function save_payment_type_from_order(string $payment_type,int $order_id)
+    {
+        $payments            = get_option('jobmid_payments');
+        $payments            = (!is_array($payments)) ? [] : $payments;
+        $payments[$order_id] = $payment_type;
+
+        update_option('jobmid_payments',$payments);
+    }
+
+    /**
+     * Get order payment type
+     * @param  int    $order_id
+     * @return string
+     */
+    protected function get_payment_type(int $order_id)
+    {
+        $payment_type = false;
+        $payments     = get_option('jobmid_payments');
+        if(isset($payments[$order_id])) :
+            $payment_type = $payments[$order_id];
+        endif;
+        return $payment_type;
+    }
+
+    /**
      * Process the transaction from checkout to payment gateway
      * Hooked via action wpjobster_taketo_midtrans_gateway, priority 999
      * @param  string $payment_type [description]
@@ -181,10 +212,11 @@ class PaymentGateway
         ];
 
         try {
+            $this->save_payment_type_from_order($payment_type,intval($detail['order_id']));
             wp_redirect(\Veritrans_VtWeb::getRedirectionUrl($transaction));
             exit;
         }
-        catch (Exception $e) {
+        catch (\Exception $e) {
             echo ',,'.$e->getMessage();
             if(strpos ($e->getMessage(), "Access denied due to unauthorized")) :
                 echo "<code>";
@@ -197,5 +229,97 @@ class PaymentGateway
             endif;
         }
         exit;
+    }
+
+    /**
+     * Verify transaction with ipn notification
+     * @return [type] [description]
+     */
+    protected function verify_transaction($payment_type)
+    {
+        $this->set_veritrans_config();
+        fwrite($this->log,"\n".current_time('Y-m-d H:i').' called');
+
+        try {
+            $notification  = new \Veritrans_Notification();
+            $order_id      = $notification->order_id;
+            $transaction   = $notification->transaction_status;
+            $fraud         = $notification->fraud_status;
+            $payment       = $notification->payment_type;
+            $text          = "Order ID $notification->order_id: "."transaction status = $transaction, fraud staus = $fraud, payment type = $payment";
+            $order_details = wpjobster_get_order_details_by_orderid($order_id);
+            $payment_type  = $this->get_payment_type(intval($notification->order_id));
+
+            if(isset($_GET['action']) && 'notification' === $_GET['action']) :
+
+                if(in_array($transaction,['capture','settlement'])) :
+
+                    $payment_details = "success action returned"; // any info you may find useful for debug
+
+                    do_action( "wpjobster_" . $payment_type . "_payment_success",
+                        $order_id,
+                        $this->unique_slug,
+                        $payment_details,
+                        maybe_serialize($_REQUEST)
+                    );
+
+                elseif(in_array($_GET['action'],['deny','cancel'])) :
+
+                    do_action( "wpjobster_" . $payment_type . "_payment_failed",
+                        $order_id,
+                        $this->unique_slug,
+                        $payment_details,
+                        maybe_unserialize($_REQUEST)
+                    );
+                    die();
+
+                endif;
+            endif;
+
+            fwrite($this->log,"\n".$text);
+        }
+        catch (\Exception $e) {
+            fwrite($this->log,"\n duhh ".$e->getMessage());
+        }
+
+        fclose($this->log);
+
+        die();
+    }
+
+    /**
+     * Check transaction request
+     * Hooked via action template_redirect, priority 999
+     * -- Hooked via action wpjobster_processafter_midtrans_gateway, priority 999
+     * @return void
+     */
+    public function check_transaction()
+    {
+        if(
+            isset($_GET['payment_response']) && 'midtrans' === $_GET['payment_response'] &&
+            isset($_GET['action'])
+        ) :
+            if('notification' === $_GET['action']) :
+                $this->verify_transaction($payment_type);
+            elseif(isset($_GET['order_id'])) :
+
+                $payment_type  = $this->get_payment_type(intval($_GET['order_id']));
+
+                if('finish' === $_GET['action']) :
+                    __debug(wpjobster_get_order($_GET['order_id']),wpjobster_get_order_details_by_orderid($_GET['order_id']));
+                    exit;
+                elseif(in_array($_GET['action'],['unfinish','error'])) :
+                    $payment_details = "Failed action returned"; // any info you may find useful for debug
+                    do_action( "wpjobster_" . $payment_type . "_payment_failed",
+                        $order_id,
+                        $this->unique_slug,
+                        $payment_details,
+                        maybe_unserialize($_REQUEST)
+                    );
+                    die();
+                endif;
+            endif;
+        endif;
+
     }
 }

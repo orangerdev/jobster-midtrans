@@ -176,8 +176,10 @@ class Jobmid {
 		$this->loader->add_action('admin_init',			$payment,'update_setting'	,999);
 		$this->loader->add_action('admin_notices',		$payment,'update_notice'	,999);
 
-		$this->loader->add_action('wpjobster_taketo_' . $this->unique_slug . '_gateway',	$payment,'process_transaction',999,2);
-		$this->loader->add_filter('wpjobster_take_allowed_currency_' . $this->unique_slug,	$payment,'set_allowed_currency',9999);
+		$this->loader->add_action('wpjobster_taketo_' . $this->unique_slug . '_gateway',		$payment,'process_transaction',999,2);
+		// $this->loader->add_action('wpjobster_processafter_' . $this->unique_slug . '_gateway',	$payment,'verify_transaction',999,2);
+		$this->loader->add_action('template_redirect',											$payment,'check_transaction',999);
+		$this->loader->add_filter('wpjobster_take_allowed_currency_' . $this->unique_slug,		$payment,'set_allowed_currency',9999);
 
 		//$this->loader->add_filter('wpjobster_payment_gateways'			,[$this,'register_payment_gateway']	,1);
 		//$this->loader->add_action('wpjobster_show_paymentgateway_forms'	,[$this,'display_form'],			 $this->priority,3);
