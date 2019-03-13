@@ -101,6 +101,15 @@
             </tr>
 
             <tr>
+                <td valign=top width="22"><?php wpjobster_theme_bullet( __( 'Already Created Invoice Message', 'jobmid' ) ); ?></td>
+                <td style='vertical-align:top'><?php _e('Already Created Message:','jobmid'); ?></td>
+                <td>
+                    <textarea style='width:100%;min-height:120px;' name="wpjobster_midtrans_already_created_message"><?php echo get_option('wpjobster_midtrans_already_created_message'); ?></textarea>
+                    <p><?php _e('Pesan jika customer sebelumnya sudah pernah memproses invoice ini melalui midtrans namun belum dituntaskan','jobmid'); ?></p>
+                </td>
+            </tr>
+
+            <tr>
                 <td valign=top width="22"><?php wpjobster_theme_bullet( __( 'Finish Transaction Message', 'jobmid' ) ); ?></td>
                 <td style='vertical-align:top'><?php _e('Finish Transaction Message:','jobmid'); ?></td>
                 <td><textarea style='width:100%;min-height:120px;' name="wpjobster_midtrans_finish_message"><?php echo get_option('wpjobster_midtrans_finish_message'); ?></textarea></td>
