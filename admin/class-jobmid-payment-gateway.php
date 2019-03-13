@@ -122,10 +122,12 @@ class PaymentGateway
             update_option('wpjobster_midtrans_button_caption',      $_POST['wpjobster_midtrans_button_caption']);
             update_option('wpjobster_midtrans_merchant_id',         $_POST['wpjobster_midtrans_merchant_id']);
             update_option('wpjobster_midtrans_client_key',          $_POST['wpjobster_midtrans_client_key']);
-            update_option('wpjobster_midtrans_server_key',          $_POST['wpjobster_midtrans_server_key']);
-            update_option('wpjobster_midtrans_finish_message',      $_POST['wpjobster_midtrans_finish_message']);
-            update_option('wpjobster_midtrans_unfinish_message',    $_POST['wpjobster_midtrans_unfinish_message']);
-            update_option('wpjobster_midtrans_error_message',       $_POST['wpjobster_midtrans_error_message']);
+            update_option('wpjobster_midtrans_server_key',              $_POST['wpjobster_midtrans_server_key']);
+            update_option('wpjobster_midtrans_already_created_message', $_POST['wpjobster_midtrans_already_created_message']);
+            update_option('wpjobster_midtrans_finish_message',          $_POST['wpjobster_midtrans_finish_message']);
+            update_option('wpjobster_midtrans_pending_message',         $_POST['wpjobster_midtrans_pending_message']);
+            update_option('wpjobster_midtrans_unfinish_message',        $_POST['wpjobster_midtrans_unfinish_message']);
+            update_option('wpjobster_midtrans_error_message',           $_POST['wpjobster_midtrans_error_message']);
 
             $this->notice = true;
         endif;
@@ -181,10 +183,90 @@ class PaymentGateway
     {
         $payment_type = false;
         $payments     = get_option('jobmid_payments');
+
         if(isset($payments[$order_id])) :
             $payment_type = $payments[$order_id];
         endif;
+
         return $payment_type;
+    }
+
+   /*
+    * Save notification status from ipn
+    * @param  string $status
+    * @param  int    $order_id
+    * @return void
+    */
+   protected function save_notification_status(string $status, int $order_id)
+   {
+       $notifications            = get_option('jobmid_notifications');
+       $notifications            = (!is_array($notifications)) ? [] : $notifications;
+       $notifications[$order_id] = $status;
+
+       update_option('jobmid_notifications',$notifications);
+   }
+
+   /**
+    * Get order notification status
+    * @param  integer $order_id
+    * @return string
+    */
+   protected function get_notification(int $order_id)
+   {
+       $status = false;
+       $notifications     = get_option('jobmid_notifications');
+
+       if(isset($notifications[$order_id])) :
+           $status = $notifications[$order_id];
+       endif;
+
+       return $status;
+   }
+
+    /**
+     * Set item detail to transaction info
+     * @param   array  $transaction  [description]
+     * @param   string $payment_type [description]
+     * @param   array  $detail       [description]
+     * @return  array
+     */
+    protected function set_item_detail(array $transaction, string $payment_type, array $detail)
+    {
+        if('job_purchase' === $payment_type) :
+            $transaction['item_details'] = [
+                [
+                    'id'        => $detail['post']->ID,
+                    'price'     => $detail['wpjobster_final_payable_amount'],
+                    'quantity'  => 1,
+                    'name'      => $detail['post']->post_title
+                ]
+            ];
+        elseif('topup' === $payment_type) :
+            $transaction['item_details'] = [
+                [
+                    'id'        => $detail['pid'],
+                    'price'     => $detail['wpjobster_final_payable_amount'],
+                    'quantity'  => 1,
+                    'name'      => $detail['job_title']
+                ]
+            ];
+        endif;
+
+        return $transaction;
+    }
+
+    /**
+     * Translate order
+     * @param  string $order
+     * @return array
+     */
+    protected function translate_order(string $order)
+    {
+        list($payment_type,$order_id)   = explode('+++',$order);
+        return [
+            'payment_type'  => $payment_type,
+            'order_id'      => intval($order_id)
+        ];
     }
 
     /**
@@ -200,31 +282,24 @@ class PaymentGateway
 
         $transaction = [
             'transaction_details'   => [
-                'order_id'      => $detail['order_id'],
+                'order_id'      => $payment_type.'+++'.$detail['order_id'],
                 'gross_amount'  => $detail['wpjobster_final_payable_amount']
             ],
             'customer_details'      => [
                 'first_name' => $detail['current_user']->user_firstname,
                 'last_name'  => $detail['current_user']->user_lastname,
                 'email'      => $detail['current_user']->user_email
-            ],
-            'item_details'          => [
-                [
-                    'id'        => $detail['post']->ID,
-                    'price'     => $detail['wpjobster_final_payable_amount'],
-                    'quantity'  => 1,
-                    'name'      => $detail['post']->post_title
-                ]
             ]
         ];
 
+        $transaction = $this->set_item_detail($transaction,$payment_type,$detail);
+        $this->save_payment_type_from_order($payment_type,intval($detail['order_id']));
+
         try {
-            $this->save_payment_type_from_order($payment_type,intval($detail['order_id']));
             wp_redirect(\Veritrans_VtWeb::getRedirectionUrl($transaction));
             exit;
         }
         catch (\Exception $e) {
-            echo ',,'.$e->getMessage();
             if(strpos ($e->getMessage(), "Access denied due to unauthorized")) :
                 echo "<code>";
                 echo "<h4>Please set real server key from sandbox</h4>";
@@ -233,6 +308,11 @@ class PaymentGateway
                 echo "<br>";
                 echo htmlspecialchars('Veritrans_Config::$serverKey = \'<your server key>\';');
                 die();
+            elseif(strpos($e->getMessage(),"Order ID has been used")) :
+                $title   = __('Error Transaction','jobmid');
+                $message = get_option('wpjobster_midtrans_already_created_message');
+                require plugin_dir_path(dirname(__FILE__)).'public/partials/message.php';
+                exit;
             endif;
         }
         exit;
@@ -245,19 +325,28 @@ class PaymentGateway
     protected function verify_transaction($payment_type)
     {
         $this->set_veritrans_config();
-        fwrite($this->log,"\n".current_time('Y-m-d H:i').' called');
+        fwrite($this->log,"\n".current_time('Y-m-d H:i').' called : ');
 
         try {
             $notification  = new \Veritrans_Notification();
-            $order_id      = $notification->order_id;
+
+            fwrite($this->log,$notification->order_id.' +++ ');
+
+            extract($this->translate_order($notification->order_id));
+
             $transaction   = $notification->transaction_status;
             $fraud         = $notification->fraud_status;
             $payment       = $notification->payment_type;
-            $text          = "Order ID $notification->order_id: "."transaction status = $transaction, fraud staus = $fraud, payment type = $payment";
             $order_details = wpjobster_get_order_details_by_orderid($order_id);
-            $payment_type  = $this->get_payment_type(intval($notification->order_id));
+            //$payment_type  = $this->get_payment_type(intval($notification->order_id));
 
             if(isset($_GET['action']) && 'notification' === $_GET['action']) :
+
+                fwrite($this->log,
+                    sprintf('order %s payment type %s status %s nofification %s',$order_id,$payment_type,$transcation,$_GET['action']).'\n'
+                );
+
+                $this->save_notification_status($transaction,$order_id);
 
                 if(in_array($transaction,['capture','settlement'])) :
 
@@ -307,25 +396,34 @@ class PaymentGateway
             isset($_GET['action'])
         ) :
             if('notification' === $_GET['action']) :
+
                 $this->verify_transaction($payment_type);
+
             elseif(isset($_GET['order_id'])) :
 
-                $payment_type   = $this->get_payment_type(intval($_GET['order_id']));
+                // $payment_type   = $this->get_payment_type(intval($_GET['order_id']));
+                extract($this->translate_order($_GET['order_id']));
+
                 $payment_status = $_GET['action'];
-                $order_details  = wpjobster_get_order_details_by_orderid(intval($_GET['order_id']));
+                $order_details  = wpjobster_get_order_details_by_orderid($order_id);
 
                 if('finish' === $_GET['action']) :
 
-                    $title   = __('Transaction Success','jobmid');
-                    $message = get_option('wpjobster_midtrans_finish_message');
+                    if(isset($_GET['transaction_status']) && 'pending' === $_GET['transaction_status']) :
+                        $title   = __('Pending Transaction','jobmid');
+                        $message = get_option('wpjobster_midtrans_pending_message');
+                    else :
+                        $title   = __('Success Transaction','jobmid');
+                        $message = get_option('wpjobster_midtrans_finish_message');
+                    endif;
 
                 elseif(in_array($_GET['action'],['unfinish','error'])) :
 
                     if('unfinish' === $_GET['action']) :
-                        $title   = __('Transaction Unfinish','jobmid');
+                        $title   = __('Unfinish Transaction','jobmid');
                         $message = get_option('wpjobster_midtrans_unfinish_message');
                     else :
-                        $title   = __('Transaction Error','jobmid');
+                        $title   = __('Error Transaction','jobmid');
                         $message = get_option('wpjobster_midtrans_error_message');
                     endif;
 
