@@ -181,13 +181,46 @@ class PaymentGateway
     {
         $payment_type = false;
         $payments     = get_option('jobmid_payments');
+
         if(isset($payments[$order_id])) :
             $payment_type = $payments[$order_id];
         endif;
+
         return $payment_type;
     }
 
-    /**
+   /*
+    * Save notification status from ipn
+    * @param  string $status
+    * @param  int    $order_id
+    * @return void
+    */
+   protected function save_notification_status(string $status, int $order_id)
+   {
+       $notifications            = get_option('jobmid_notifications');
+       $notifications            = (!is_array($notifications)) ? [] : $notifications;
+       $notifications[$order_id] = $status;
+
+       update_option('jobmid_notifications',$notifications);
+   }
+
+   /**
+    * Get order notification status
+    * @param  integer $order_id
+    * @return string
+    */
+   protected function get_notification(int $order_id)
+   {
+       $status = false;
+       $notifications     = get_option('jobmid_notifications');
+
+       if(isset($notifications[$order_id])) :
+           $status = $notifications[$order_id];
+       endif;
+
+       return $status;
+
+    /*
      * Set item detail to transaction info
      * @param   array  $transaction  [description]
      * @param   string $payment_type [description]
@@ -196,7 +229,6 @@ class PaymentGateway
      */
     protected function set_item_detail(array $transaction, string $payment_type, array $detail)
     {
-        __debug($payment_type);
         if('job_purchase' === $payment_type) :
             $transaction['item_details'] = [
                 [
@@ -240,15 +272,7 @@ class PaymentGateway
                 'first_name' => $detail['current_user']->user_firstname,
                 'last_name'  => $detail['current_user']->user_lastname,
                 'email'      => $detail['current_user']->user_email
-            ],
-            // 'item_details'          => [
-            //     [
-            //         'id'        => $detail['post']->ID,
-            //         'price'     => $detail['wpjobster_final_payable_amount'],
-            //         'quantity'  => 1,
-            //         'name'      => $detail['post']->post_title
-            //     ]
-            // ]
+            ]
         ];
 
         $transaction = $this->set_item_detail($transaction,$payment_type,$detail);
@@ -284,11 +308,10 @@ class PaymentGateway
 
         try {
             $notification  = new \Veritrans_Notification();
-            $order_id      = $notification->order_id;
+            $order_id      = intval($notification->order_id);
             $transaction   = $notification->transaction_status;
             $fraud         = $notification->fraud_status;
             $payment       = $notification->payment_type;
-            $text          = "Order ID $notification->order_id: "."transaction status = $transaction, fraud staus = $fraud, payment type = $payment";
             $order_details = wpjobster_get_order_details_by_orderid($order_id);
             $payment_type  = $this->get_payment_type(intval($notification->order_id));
 
@@ -297,6 +320,8 @@ class PaymentGateway
                 fwrite($this->log,
                     sprintf('order %s payment type %s status %s nofification %s',$order_id,$payment_type,$transcation,$_GET['action']).'\n'
                 );
+
+                $this->save_notification_status($transaction,$order_id);
 
                 if(in_array($transaction,['capture','settlement'])) :
 

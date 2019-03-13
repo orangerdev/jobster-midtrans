@@ -107,6 +107,12 @@
             </tr>
 
             <tr>
+                <td valign=top width="22"><?php wpjobster_theme_bullet( __( 'Pending Transaction Message', 'jobmid' ) ); ?></td>
+                <td style='vertical-align:top'><?php _e('Pending Transaction Message:','jobmid'); ?></td>
+                <td><textarea style='width:100%;min-height:120px;' name="wpjobster_midtrans_pending_message"><?php echo get_option('wpjobster_midtrans_pending_message'); ?></textarea></td>
+            </tr>
+
+            <tr>
                 <td valign=top width="22"><?php wpjobster_theme_bullet( __( 'Unfinish Transaction Message', 'jobmid' ) ); ?></td>
                 <td style='vertical-align:top'><?php _e('Unfinish Transaction Message:','jobmid'); ?></td>
                 <td><textarea style='width:100%;min-height:120px;' name="wpjobster_midtrans_unfinish_message"><?php echo get_option('wpjobster_midtrans_unfinish_message'); ?></textarea></td>

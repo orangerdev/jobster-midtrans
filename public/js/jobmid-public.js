@@ -11,7 +11,7 @@
 			if(1 > i) {
 				clearInterval(int);
 				$('.jobmid-message-holder .jobmid-message-content .jobmid-button').fadeIn('fast');
-				window.location.replace(jobMidRedirect);
+				window.location.href = jobMidRedirect;
 			}
 		},1000);
 	}
