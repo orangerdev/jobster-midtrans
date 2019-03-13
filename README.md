@@ -14,7 +14,7 @@ The plugin will add midtrans payment gateway into WPJobster theme (https://wpjob
 
 == Installation ==
 
-1. Upload `jobmid.php` to the `/wp-content/plugins/` directory
+1. Upload the zip file to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Go to Jobster main menu and open Payment Gateways.
 4. There is Midtrans tabs, click on the tab
