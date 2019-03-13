@@ -220,7 +220,7 @@ class PaymentGateway
 
        return $status;
    }
-   
+
     /**
      * Set item detail to transaction info
      * @param   array  $transaction  [description]
@@ -254,6 +254,20 @@ class PaymentGateway
     }
 
     /**
+     * Translate order
+     * @param  string $order
+     * @return array
+     */
+    protected function translate_order(string $order)
+    {
+        list($payment_type,$order_id)   = explode('+++',$order);
+        return [
+            'payment_type'  => $payment_type,
+            'order_id'      => intval($order_id)
+        ];
+    }
+
+    /**
      * Process the transaction from checkout to payment gateway
      * Hooked via action wpjobster_taketo_midtrans_gateway, priority 999
      * @param  string $payment_type [description]
@@ -266,7 +280,7 @@ class PaymentGateway
 
         $transaction = [
             'transaction_details'   => [
-                'order_id'      => $detail['order_id'],
+                'order_id'      => $payment_type.'+++'.$detail['order_id'],
                 'gross_amount'  => $detail['wpjobster_final_payable_amount']
             ],
             'customer_details'      => [
@@ -305,16 +319,20 @@ class PaymentGateway
     protected function verify_transaction($payment_type)
     {
         $this->set_veritrans_config();
-        fwrite($this->log,"\n".current_time('Y-m-d H:i').' called');
+        fwrite($this->log,"\n".current_time('Y-m-d H:i').' called : ');
 
         try {
             $notification  = new \Veritrans_Notification();
-            $order_id      = intval($notification->order_id);
+
+            fwrite($this->log,$notification->order_id.' +++ ');
+
+            extract($this->translate_order($notification->order_id));
+
             $transaction   = $notification->transaction_status;
             $fraud         = $notification->fraud_status;
             $payment       = $notification->payment_type;
             $order_details = wpjobster_get_order_details_by_orderid($order_id);
-            $payment_type  = $this->get_payment_type(intval($notification->order_id));
+            //$payment_type  = $this->get_payment_type(intval($notification->order_id));
 
             if(isset($_GET['action']) && 'notification' === $_GET['action']) :
 
@@ -377,9 +395,11 @@ class PaymentGateway
 
             elseif(isset($_GET['order_id'])) :
 
-                $payment_type   = $this->get_payment_type(intval($_GET['order_id']));
+                // $payment_type   = $this->get_payment_type(intval($_GET['order_id']));
+                extract($this->translate_order($_GET['order_id']));
+
                 $payment_status = $_GET['action'];
-                $order_details  = wpjobster_get_order_details_by_orderid(intval($_GET['order_id']));
+                $order_details  = wpjobster_get_order_details_by_orderid($order_id);
 
                 if('finish' === $_GET['action']) :
 
