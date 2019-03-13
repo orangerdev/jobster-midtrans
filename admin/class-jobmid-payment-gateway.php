@@ -122,10 +122,12 @@ class PaymentGateway
             update_option('wpjobster_midtrans_button_caption',      $_POST['wpjobster_midtrans_button_caption']);
             update_option('wpjobster_midtrans_merchant_id',         $_POST['wpjobster_midtrans_merchant_id']);
             update_option('wpjobster_midtrans_client_key',          $_POST['wpjobster_midtrans_client_key']);
-            update_option('wpjobster_midtrans_server_key',          $_POST['wpjobster_midtrans_server_key']);
-            update_option('wpjobster_midtrans_finish_message',      $_POST['wpjobster_midtrans_finish_message']);
-            update_option('wpjobster_midtrans_unfinish_message',    $_POST['wpjobster_midtrans_unfinish_message']);
-            update_option('wpjobster_midtrans_error_message',       $_POST['wpjobster_midtrans_error_message']);
+            update_option('wpjobster_midtrans_server_key',              $_POST['wpjobster_midtrans_server_key']);
+            update_option('wpjobster_midtrans_already_created_message', $_POST['wpjobster_midtrans_already_created_message']);
+            update_option('wpjobster_midtrans_finish_message',          $_POST['wpjobster_midtrans_finish_message']);
+            update_option('wpjobster_midtrans_pending_message',         $_POST['wpjobster_midtrans_pending_message']);
+            update_option('wpjobster_midtrans_unfinish_message',        $_POST['wpjobster_midtrans_unfinish_message']);
+            update_option('wpjobster_midtrans_error_message',           $_POST['wpjobster_midtrans_error_message']);
 
             $this->notice = true;
         endif;
@@ -298,7 +300,6 @@ class PaymentGateway
             exit;
         }
         catch (\Exception $e) {
-            echo ',,'.$e->getMessage();
             if(strpos ($e->getMessage(), "Access denied due to unauthorized")) :
                 echo "<code>";
                 echo "<h4>Please set real server key from sandbox</h4>";
@@ -307,6 +308,11 @@ class PaymentGateway
                 echo "<br>";
                 echo htmlspecialchars('Veritrans_Config::$serverKey = \'<your server key>\';');
                 die();
+            elseif(strpos($e->getMessage(),"Order ID has been used")) :
+                $title   = __('Error Transaction','jobmid');
+                $message = get_option('wpjobster_midtrans_already_created_message');
+                require plugin_dir_path(dirname(__FILE__)).'public/partials/message.php';
+                exit;
             endif;
         }
         exit;
@@ -403,16 +409,21 @@ class PaymentGateway
 
                 if('finish' === $_GET['action']) :
 
-                    $title   = __('Transaction Success','jobmid');
-                    $message = get_option('wpjobster_midtrans_finish_message');
+                    if(isset($_GET['transaction_status']) && 'pending' === $_GET['transaction_status']) :
+                        $title   = __('Pending Transaction','jobmid');
+                        $message = get_option('wpjobster_midtrans_pending_message');
+                    else :
+                        $title   = __('Success Transaction','jobmid');
+                        $message = get_option('wpjobster_midtrans_finish_message');
+                    endif;
 
                 elseif(in_array($_GET['action'],['unfinish','error'])) :
 
                     if('unfinish' === $_GET['action']) :
-                        $title   = __('Transaction Unfinish','jobmid');
+                        $title   = __('Unfinish Transaction','jobmid');
                         $message = get_option('wpjobster_midtrans_unfinish_message');
                     else :
-                        $title   = __('Transaction Error','jobmid');
+                        $title   = __('Error Transaction','jobmid');
                         $message = get_option('wpjobster_midtrans_error_message');
                     endif;
 
