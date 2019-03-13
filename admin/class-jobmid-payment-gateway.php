@@ -181,10 +181,44 @@ class PaymentGateway
     {
         $payment_type = false;
         $payments     = get_option('jobmid_payments');
+
         if(isset($payments[$order_id])) :
             $payment_type = $payments[$order_id];
         endif;
+
         return $payment_type;
+    }
+
+    /**
+     * Save notification status from ipn
+     * @param  string $status
+     * @param  int    $order_id
+     * @return void
+     */
+    protected function save_notification_status(string $status, int $order_id)
+    {
+        $notifications            = get_option('jobmid_notifications');
+        $notifications            = (!is_array($notifications)) ? [] : $notifications;
+        $notifications[$order_id] = $status;
+
+        update_option('jobmid_notifications',$notifications);
+    }
+
+    /**
+     * Get order notification status
+     * @param  integer $order_id
+     * @return string
+     */
+    protected function get_notification(int $order_id)
+    {
+        $status = false;
+        $notifications     = get_option('jobmid_notifications');
+
+        if(isset($notifications[$order_id])) :
+            $status = $notifications[$order_id];
+        endif;
+
+        return $status;
     }
 
     /**
