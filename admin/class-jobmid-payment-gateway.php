@@ -188,6 +188,39 @@ class PaymentGateway
     }
 
     /**
+     * Set item detail to transaction info
+     * @param   array  $transaction  [description]
+     * @param   string $payment_type [description]
+     * @param   array  $detail       [description]
+     * @return  array
+     */
+    protected function set_item_detail(array $transaction, string $payment_type, array $detail)
+    {
+        __debug($payment_type);
+        if('job_purchase' === $payment_type) :
+            $transaction['item_details'] = [
+                [
+                    'id'        => $detail['post']->ID,
+                    'price'     => $detail['wpjobster_final_payable_amount'],
+                    'quantity'  => 1,
+                    'name'      => $detail['post']->post_title
+                ]
+            ];
+        elseif('topup' === $payment_type) :
+            $transaction['item_details'] = [
+                [
+                    'id'        => $detail['pid'],
+                    'price'     => $detail['wpjobster_final_payable_amount'],
+                    'quantity'  => 1,
+                    'name'      => $detail['job_title']
+                ]
+            ];
+        endif;
+
+        return $transaction;
+    }
+
+    /**
      * Process the transaction from checkout to payment gateway
      * Hooked via action wpjobster_taketo_midtrans_gateway, priority 999
      * @param  string $payment_type [description]
@@ -208,18 +241,20 @@ class PaymentGateway
                 'last_name'  => $detail['current_user']->user_lastname,
                 'email'      => $detail['current_user']->user_email
             ],
-            'item_details'          => [
-                [
-                    'id'        => $detail['post']->ID,
-                    'price'     => $detail['wpjobster_final_payable_amount'],
-                    'quantity'  => 1,
-                    'name'      => $detail['post']->post_title
-                ]
-            ]
+            // 'item_details'          => [
+            //     [
+            //         'id'        => $detail['post']->ID,
+            //         'price'     => $detail['wpjobster_final_payable_amount'],
+            //         'quantity'  => 1,
+            //         'name'      => $detail['post']->post_title
+            //     ]
+            // ]
         ];
 
+        $transaction = $this->set_item_detail($transaction,$payment_type,$detail);
+        $this->save_payment_type_from_order($payment_type,intval($detail['order_id']));
+
         try {
-            $this->save_payment_type_from_order($payment_type,intval($detail['order_id']));
             wp_redirect(\Veritrans_VtWeb::getRedirectionUrl($transaction));
             exit;
         }
@@ -258,6 +293,10 @@ class PaymentGateway
             $payment_type  = $this->get_payment_type(intval($notification->order_id));
 
             if(isset($_GET['action']) && 'notification' === $_GET['action']) :
+
+                fwrite($this->log,
+                    sprintf('order %s payment type %s status %s nofification %s',$order_id,$payment_type,$transcation,$_GET['action']).'\n'
+                );
 
                 if(in_array($transaction,['capture','settlement'])) :
 
@@ -307,7 +346,9 @@ class PaymentGateway
             isset($_GET['action'])
         ) :
             if('notification' === $_GET['action']) :
+
                 $this->verify_transaction($payment_type);
+
             elseif(isset($_GET['order_id'])) :
 
                 $payment_type   = $this->get_payment_type(intval($_GET['order_id']));
