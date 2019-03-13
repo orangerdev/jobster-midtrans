@@ -219,8 +219,9 @@ class PaymentGateway
        endif;
 
        return $status;
-
-    /*
+   }
+   
+    /**
      * Set item detail to transaction info
      * @param   array  $transaction  [description]
      * @param   string $payment_type [description]
