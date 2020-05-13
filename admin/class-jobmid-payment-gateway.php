@@ -236,16 +236,16 @@ class PaymentGateway
             $transaction['item_details'] = [
                 [
                     'id'        => $detail['post']->ID,
-                    'price'     => $detail['wpjobster_final_payable_amount'],
+                    'price'     => round($detail['wpjobster_final_payable_amount']),
                     'quantity'  => 1,
-                    'name'      => $detail['post']->post_title
+                    'name'      => $detail['post']->post_title, 0, 50
                 ]
             ];
         elseif('topup' === $payment_type) :
             $transaction['item_details'] = [
                 [
                     'id'        => $detail['pid'],
-                    'price'     => $detail['wpjobster_final_payable_amount'],
+                    'price'     => round($detail['wpjobster_final_payable_amount']),
                     'quantity'  => 1,
                     'name'      => $detail['job_title']
                 ]
@@ -283,7 +283,7 @@ class PaymentGateway
         $transaction = [
             'transaction_details'   => [
                 'order_id'      => $payment_type.'+++'.$detail['order_id'],
-                'gross_amount'  => $detail['wpjobster_final_payable_amount']
+                'gross_amount'  => round($detail['wpjobster_final_payable_amount']) // Remove decimal
             ],
             'customer_details'      => [
                 'first_name' => $detail['current_user']->user_firstname,
