@@ -238,7 +238,7 @@ class PaymentGateway
                     'id'        => $detail['post']->ID,
                     'price'     => round($detail['wpjobster_final_payable_amount']),
                     'quantity'  => 1,
-                    'name'      => $detail['post']->post_title, 0, 50
+                    'name'      => substr($detail['post']->post_title, 0, 50)
                 ]
             ];
         elseif('topup' === $payment_type) :
@@ -247,7 +247,7 @@ class PaymentGateway
                     'id'        => $detail['pid'],
                     'price'     => round($detail['wpjobster_final_payable_amount']),
                     'quantity'  => 1,
-                    'name'      => $detail['job_title']
+                    'name'      => substr($detail['job_title'], 0, 50)
                 ]
             ];
         endif;
