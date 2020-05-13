@@ -4,7 +4,7 @@ Donate link: https://ridwan-arifandi.com
 Tags: jobster, midtrans, payment gateway
 Requires at least: 3.0.1
 Tested up to: 5.1
-Stable tag: 5.1
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,6 +23,10 @@ The plugin will add midtrans payment gateway into WPJobster theme (https://wpjob
 ![form field](https://user-images.githubusercontent.com/8991969/54210797-c0547880-4512-11e9-9633-b2cfe3338894.png)
 
 == Changelog ==
+
+1.0.1
+* Make sure no decimal in product price and gross detail
+* Limit product name string to max 50 chars
 
 = 1.0.0 =
 * First release

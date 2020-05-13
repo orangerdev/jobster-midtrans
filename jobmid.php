@@ -16,7 +16,7 @@
  * Plugin Name:       JobSter - Midtrans Payment Gateway
  * Plugin URI:        https://ridwan-arifandi.com
  * Description:       Integrate midtrans (veritrans) payment gateway to WPJobster marketplace theme (https://wpjobster.com)
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            Ridwan Arifandi
  * Author URI:        https://ridwan-arifandi.com
  * License:           GPL-2.0+
@@ -35,7 +35,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'JOBMID_VERSION', '1.0.0' );
+define( 'JOBMID_VERSION', '1.0.1' );
 
 /**
  * The code that runs during plugin activation.

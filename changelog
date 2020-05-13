@@ -1,2 +1,6 @@
+1.0.1 (13 May 2020)
+Make sure no decimal in product price and gross detail
+Limit product name string to max 50 chars
+
 1.0.0 (11 March 2019)
 First release
